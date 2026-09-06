@@ -2,17 +2,17 @@
   "gaming": {
     "applicationId": "1522275745450168462",
     "type": "PLAYING",
-    "name": "idk",
-    "details": "idk",
-    "state": ".gg/",
-    "largeImageKey": "",
-    "largeText": "",
-    "smallImageKey": "",
-    "smallText": ".GG",
-    "url": "https://Discord.gg",
+    "name": "Vortex Tiers",
+    "details": "Grinding Tiers",
+    "state": ".gg/vortextiers",
+    "largeImageKey": "https://cdn.discordapp.com/icons/1513932791065219244/ebcb197f5c98ac7be91d7591e4945a4b.webp?size=2048",
+    "largeText": "Vortex",
+    "smallImageKey": "https://cdn.discordapp.com/icons/1513932791065219244/ebcb197f5c98ac7be91d7591e4945a4b.webp?size=2048",
+    "smallText": ".GG/vortextiers",
+    "url": "https://Discord.gg/Vortextiers",
     "timestampType": "1000",
     "buttons": [
-      { "label": "@vortextiers", "url": "https://Discord.gg" },
+      { "label": "@vortextiers", "url": "https://Discord.gg/Vortextiers" },
       { "label": "View Stats", "url": "https://github.com" }
     ]
   },
@@ -26,7 +26,7 @@
     "largeText": "1080p 60FPS",
     "smallImageKey": "",
     "smallText": "",
-    "url": "https://Discord.gg",
+    "url": "https://Discord.gg/Vortextiers",
     "timestampType": "ELAPSED",
     "buttons": [
       { "label": "Join Lobby", "url": "https://discord.gg" },
@@ -43,7 +43,7 @@
     "largeText": "Binge Watching",
     "smallImageKey": "",
     "smallText": "",
-    "url": "https://Discord.gg",
+    "url": "https://Discord.gg/Vortextiers",
     "timestampType": "ELAPSED",
     "buttons": [
       { "label": "Join Lobby", "url": "https://discord.gg" },

@@ -4,6 +4,7 @@ const { CustomStatus } = require('discord.js-selfbot-v13');
 
 module.exports = {
   name: 'rotate',
+  category: 'Status',
   async execute(message, args, context) {
     const subCommand = args && args.length > 0 ? args[0].toLowerCase() : null;
 

@@ -1,5 +1,6 @@
 module.exports = {
   name: 'clown',
+  category: 'Troll',
   async execute(message, args, context) {
     const targetMention = message.mentions.users.first();
     if (targetMention) {

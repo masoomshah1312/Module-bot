@@ -19,11 +19,14 @@ const context = {
   ghostMsgMode: false,
   targetUserIds: new Set(),
   spyTargetIds: new Set(),
+  alertKeywords: new Set(),
+  textAliases: new Map(),
+  alertLogChannelId: null,
   logChannelId: null,
   activeEmoji: null,
   reactTargetId: null,
   messageMap: new Map(),
-  client: client, // 👈 FIXED: Linked the core client to context globally!
+  client: client,
 
   saveActiveRpcState(stateName) {
     config.LAST_ACTIVE_RPC = stateName;
@@ -63,16 +66,25 @@ const context = {
 };
 
 const commands = new Map();
+const backgroundHandlers = []; // 👈 THIS MAKES IT MODULAR! Holds passive loops from files dynamically.
+
+context.commands = commands;
+// Allows new modules to push background rules down without editing index.js
+context.registerBackgroundHandler = (handlerFn) => {
+  backgroundHandlers.push(handlerFn);
+};
+
 const modsPath = path.join(__dirname, 'mods');
 const commandFiles = fs.readdirSync(modsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
   const command = require(path.join(modsPath, file));
   if (command.name) commands.set(command.name, command);
+  // If the file contains a background trigger, load it instantly!
+  if (typeof command.initBackground === 'function') {
+    command.initBackground(context);
+  }
 }
-
-// Share the maps array to make it visible across the rotator commands
-context.commands = commands;
 
 client.on('ready', () => {
   console.log(`[+] Modular selfbot configuration manager loaded!`);
@@ -83,14 +95,22 @@ client.on('ready', () => {
     const rpcModule = commands.get('rpc');
     if (rpcModule) {
       const dryArgs = savedState.startsWith('custom:') ? [savedState.slice(7)] : ['template', savedState];
-      rpcModule.execute(null, dryArgs, context).then(() => {
-        console.log(`[💾 SYSTEM] Successfully restored persistent presence state: [${savedState}]`);
-      }).catch((err) => console.log('[-] Failed to restore persistent presence:', err.message));
+      rpcModule.execute(null, dryArgs, context).catch(() => {});
     }
   }
 });
 
 client.on('messageCreate', async (message) => {
+  // 1. DYNAMIC BACKGROUND RUNNER (Executes ALL module passive behaviors blindly)
+  for (const handler of backgroundHandlers) {
+    try {
+      await handler(message);
+    } catch (err) {
+      console.error('[-] Background Module loop failure:', err.message);
+    }
+  }
+
+  // 2. COMMAND HANDLING
   if (message.author.id === client.user.id) {
     if (!message.content.startsWith(context.PREFIX)) return;
 
@@ -113,68 +133,9 @@ client.on('messageCreate', async (message) => {
       return;
     }
   }
-
-  if (message.author.id !== client.user.id && context.targetUserIds.has(message.author.id)) {
-    const attachments = message.attachments.map(att => att.url);
-    let responseText = message.content;
-
-    if (responseText) {
-      responseText = context.applyWordReplacements(responseText, message.author.id, client.user.id);
-      if (context.mockCaseMode) responseText = context.toMockCase(responseText);
-    }
-
-    if (responseText || attachments.length > 0) {
-      try {
-        const payload = {};
-        if (responseText) payload.content = responseText;
-        if (attachments.length > 0) payload.files = attachments;
-        if (message.reference && message.reference.messageId) {
-          payload.reply = { messageReference: message.reference.messageId };
-        }
-
-        const sentMessage = await message.channel.send(payload);
-        context.messageMap.set(message.id, sentMessage.id);
-
-        if (context.messageMap.size > 200) {
-          const firstKey = context.messageMap.keys().next().value;
-          context.messageMap.delete(firstKey);
-        }
-      } catch (err) {
-        console.error('[-] Send Error:', err.message);
-      }
-    }
-  }
-
-  if (message.author.id !== client.user.id && context.spyTargetIds.has(message.author.id)) {
-    if (message.content) {
-      const timestamp = new Date().toLocaleString();
-      const serverName = message.guild ? message.guild.name : 'Direct Message';
-      const channelName = message.guild ? message.channel.name : 'DM';
-
-      const logLine = `[${timestamp}] [Server: ${serverName}] [Channel: #${channelName}] ${message.author.tag}: ${message.content}\n`;
-
-      fs.appendFile('spy_logs.txt', logLine, (error) => {
-        if (error) console.error('[-] Failed to write spy log:', error.message);
-      });
-
-      if (context.logChannelId) {
-        const logRoom = client.channels.cache.get(context.logChannelId);
-        if (logRoom) {
-          logRoom.send(`📡 **[SPY LOG]** ${message.author.tag} in *${serverName}*: ${message.content}`).catch(() => {});
-        }
-      }
-    }
-  }
-
-  if (context.reactTargetId && context.activeEmoji && message.author.id === context.reactTargetId) {
-    try {
-      await message.react(context.activeEmoji);
-    } catch (err) {
-      console.error('[-] Reaction Error:', err.message);
-    }
-  }
 });
 
+// Passive deletion listeners linked straight to core context maps
 client.on('messageDelete', async (deletedMessage) => {
   if (deletedMessage.author && context.targetUserIds.has(deletedMessage.author.id)) {
     const myEchoedMessageId = context.messageMap.get(deletedMessage.id);

@@ -1,5 +1,6 @@
 module.exports = {
   name: 'spam',
+  category: 'Troll',
   async execute(message, args, context) {
     if (args.length < 2) {
       await message.edit(`❌ Format: ${context.PREFIX}spam <amount> <message>`).catch(() => {});

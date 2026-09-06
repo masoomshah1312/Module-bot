@@ -1,5 +1,6 @@
 module.exports = {
   name: 'userinfo',
+  category: 'General',
   async execute(message, args, context) {
     const targetUser = message.mentions.users.first() || message.author;
     const targetMember = message.guild ? await message.guild.members.fetch(targetUser.id).catch(() => null) : null;

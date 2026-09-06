@@ -1,5 +1,6 @@
 module.exports = {
   name: 'statuscycle',
+  category: 'Status',
   async execute(message, args, context) {
     const subCommand = args[0] ? args[0].toLowerCase() : null;
 

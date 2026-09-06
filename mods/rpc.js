@@ -4,6 +4,7 @@ const path = require('path');
 
 module.exports = {
   name: 'rpc',
+  category: 'Status',
   async execute(message, args, context) {
     if (!args || args.length === 0) {
       if (message) await context.sendResponse(message, `❌ Format: ${context.PREFIX}rpc <text> or ${context.PREFIX}rpc template <name>`);
@@ -44,7 +45,6 @@ module.exports = {
       }
 
       try {
-        // FIXED: Safely binds client context globally without throwing object invocation faults
         const rpc = new RichPresence(targetClient)
           .setApplicationId(activeTemplate.applicationId || '367827983903490050')
           .setType(activeTemplate.type || 'PLAYING')
@@ -89,7 +89,6 @@ module.exports = {
       return;
     }
 
-    // Default Fallback: Raw custom string text profiles
     const customText = args.join(' ');
     const customRpc = new RichPresence(targetClient)
       .setApplicationId('367827983903490050')

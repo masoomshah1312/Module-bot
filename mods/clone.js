@@ -1,5 +1,6 @@
 module.exports = {
   name: 'clone',
+  category: 'Server',
   async execute(message, args, context) {
     if (!message.guild) {
       await message.edit('❌ Move into a server context channel first.').catch(() => {});

@@ -1,12 +1,31 @@
+const fs = require('fs');
+const path = require('path');
+
 module.exports = {
   name: 'help',
+  category: 'Settings',
   async execute(message, args, context) {
-    // FIXED: Safely grab the first item inside the array before running string conversions
-    const subHelp = args && args[0] ? args[0].toLowerCase() : null;
+    // 1. EXTRACT ARGUMENTS Safely
+    const subHelp = args && args.length > 0 ? args[0].toLowerCase() : null;
 
+    // 2. DYNAMIC SYSTEM DIRECTORY SCANNER
+    const modsPath = path.join(process.cwd(), 'mods');
+    let loadedModules = [];
+    
+    try {
+      loadedModules = fs.readdirSync(modsPath)
+        .filter(file => file.endsWith('.js'))
+        .map(file => file.replace('.js', '').toLowerCase());
+    } catch (err) {
+      console.error('[-] Failed to dynamically read modules folder for help menu:', err.message);
+    }
+
+    // 3. DETAILED COMMAND LOOKUP CONTROLLER
     if (subHelp) {
       let specificHelpText = '';
-      switch (subHelp) {
+      const cleanCmdName = subHelp.replace(context.PREFIX, '');
+
+      switch (cleanCmdName) {
         case 'mock':
           specificHelpText = `💡 **Command Help: MOCK**\n\n• **Usage:** ${context.PREFIX}mock @user\n• **Description:** Adds target user to mirror tracking. Send ${context.PREFIX}mock off @user to turn off.`;
           break;
@@ -38,7 +57,7 @@ module.exports = {
           specificHelpText = `💡 **Command Help: CLONE**\n\n• **Usage:** ${context.PREFIX}clone\n• **Description:** Safe duplication channel template cloner script with anti-ban delays.`;
           break;
         case 'rpc':
-          specificHelpText = `💡 **Command Help: RPC**\n\n• **Usage:** ${context.PREFIX}rpc <text> or ${context.PREFIX}rpc template <name>\n• **Description:** Loads layouts from config database. Clear using ${context.PREFIX}rpc clear.`;
+          specificHelpText = `💡 **Command Help: RPC**\n\n• **Usage:** ${context.PREFIX}rpc <text> or ${context.PREFIX}rpc template <name>\n• **Description:** Loads custom layouts from configuration fields. Clear using ${context.PREFIX}rpc clear.`;
           break;
         case 'purge':
           specificHelpText = `💡 **Command Help: PURGE**\n\n• **Usage:** ${context.PREFIX}purge <amount>\n• **Description:** Removes specified trace message lines.`;
@@ -64,39 +83,44 @@ module.exports = {
         case 'statuscycle':
           specificHelpText = `💡 **Command Help: STATUSCYCLE**\n\n• **Usage:** ${context.PREFIX}statuscycle\n• **Description:** Continuously loops profile indicator orb colors. Disable via ${context.PREFIX}statuscycle off.`;
           break;
+        case 'alias':
+          specificHelpText = `💡 **Command Help: ALIAS**\n\n• **Usage:** ${context.PREFIX}alias <trigger> <full_text>\n• **Description:** Registers custom dynamic shorthand text macro triggers. Clear via ${context.PREFIX}alias clear.`;
+          break;
+        case 'ping':
+          specificHelpText = `💡 **Command Help: PING**\n\n• **Usage:** ${context.PREFIX}ping\n• **Description:** Calculates websocket system API latency roundtrips.`;
+          break;
+        case 'chatbackup':
+          specificHelpText = `💡 **Command Help: CHATBACKUP**\n\n• **Usage:** ${context.PREFIX}chatbackup <amount>\n• **Description:** Streams recent chat histories cleanly to disk logs.`;
+          break;
+        case 'afk':
+          specificHelpText = `💡 **Command Help: AFK**\n\n• **Usage:** ${context.PREFIX}afk <reason>\n• **Description:** Toggles automated away status indicators. Disable via ${context.PREFIX}afk off.`;
+          break;
+        case 'verify':
+          specificHelpText = `💡 **Command Help: VERIFY**\n\n• **Usage:** ${context.PREFIX}verify\n• **Description:** Runs live diagnostics report on commands and background tasks.`;
+          break;
+        case 'vcghost':
+          specificHelpText = `💡 **Command Help: VCGHOST**\n\n• **Usage:** ${context.PREFIX}vcghost <voice_channel_id>\n• **Description:** Spams rapid connect/disconnect network packets to trigger notification alerts for all users inside that channel room.`;
+          break;
+        case 'ascii':
+          specificHelpText = `💡 **Command Help: ASCII**\n\n• **Usage:** ${context.PREFIX}ascii <text>\n• **Description:** Transforms your sentences into stylized, large typewriter ASCII art canvas blocks.`;
+          break;
         default:
-          specificHelpText = `❌ Unknown module: ${subHelp}. Type ${context.PREFIX}help to view all active tools.`;
+          specificHelpText = `❌ Unknown module: \`${cleanCmdName}\`. Type \`${context.PREFIX}help\` to view all active tools.`;
       }
       await context.sendResponse(message, specificHelpText);
       return;
     }
 
-    const defaultHelpMenu = 
-      `**--- Modular Self-Bot Manual ---**\n` +
-      `*Type ${context.PREFIX}help <command> for deep info on specific features*\n\n` +
-      `\`${context.PREFIX}mock @user\` - Add user to mock repetition list\n` +
-      `\`${context.PREFIX}mock off @user\` - Remove user from mock list\n` +
-      `\`${context.PREFIX}stop\` - Wipe active mock targets memory\n` +
-      `\`${context.PREFIX}mode\` - Turn aLtErNaTiNg cAsE logic On/Off\n` +
-      `\`${context.PREFIX}clown @user\` - Target account with automatic 🤡 reactions\n` +
-      `\`${context.PREFIX}react @user <emoji>\` - Deploy customizable emoji listeners\n` +
-      `\`${context.PREFIX}react off\` - Terminate emoji reaction loops\n` +
-      `\`${context.PREFIX}spam <amount> <text>\` - Multiplies message text sequences sequentially\n` +
-      `\`${context.PREFIX}userinfo @user\` - Scans footprints & local custom roles\n` +
-      `\`${context.PREFIX}spy @user\` - Adds/removes target profile from multi-file log radar\n` +
-      `\`${context.PREFIX}spy off\` - Completely drops all target spy records\n` +
-      `\`${context.PREFIX}download\` - Uploads the compiled spy_logs.txt registry\n` +
-      `\`${context.PREFIX}clone\` - Safely replicates current server layout via delay\n` +
-      `\`${context.PREFIX}rpc <text/template>\` - Sets custom raw texts or presets from file\n` +
-      `\`${context.PREFIX}purge <amount>\` - Deletes specified amount of recent messages\n` +
-      `\`${context.PREFIX}prefix <symbol>\` - Modifies command prefix settings\n` +
-      `\`${context.PREFIX}ghosttype\` - Loops an infinite "typing..." status indicator\n` +
-      `\`${context.PREFIX}flood\` - Injects heavy whitespace rows to mask preceding items\n` +
-      `\`${context.PREFIX}ghostmsg\` - Auto-deletes menu command layouts after a delay window\n` +
-      `\`${context.PREFIX}rotate\` - Cycles your custom status lines every 1 minute out of JSON\n` +
-      `\`${context.PREFIX}statuscycle\` - Cycles presence indicator orb color profiles\n` +
-      `\`${context.PREFIX}status\` - Prints current debug metrics to your local terminal`;
+    // 4. MASTER ROOT MENU
+    const formattedCommands = loadedModules.map(modName => `\`${context.PREFIX}${modName}\``).join(', ');
+
+    const classicHelpMenu = 
+      `**--- Dynamic Modular Self-Bot Menu ---**\n` +
+      `*Type \`${context.PREFIX}help <command>\` for deep information on a specific feature (e.g. \`${context.PREFIX}help afk\`)*\n\n` +
+      `📦 **Active Modules Detected (\`${loadedModules.length}\`):**\n` +
+      `${formattedCommands}\n\n` +
+      `💡 *Whenever you drop a new file into your \`mods/\` folder, it will automatically show up on this list instantly!*`;
     
-    await context.sendResponse(message, defaultHelpMenu);
+    await context.sendResponse(message, classicHelpMenu);
   }
 };

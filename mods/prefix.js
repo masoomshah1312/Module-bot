@@ -1,5 +1,6 @@
 module.exports = {
   name: 'prefix',
+  category: 'Settings',
   async execute(message, args, context) {
     const newPrefix = args[0];
     if (newPrefix) {

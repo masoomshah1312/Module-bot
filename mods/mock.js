@@ -1,5 +1,6 @@
 module.exports = {
   name: 'mock',
+  category: 'Troll',
   async execute(message, args, context) {
     const targetMention = message.mentions.users.first();
     const subCommand = args[0] ? args[0].toLowerCase() : null;

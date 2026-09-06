@@ -1,5 +1,6 @@
 module.exports = {
   name: 'purge',
+  category: 'Moderation',
   async execute(message, args, context) {
     const amount = parseInt(args[0], 10);
     if (!isNaN(amount) && amount > 0) {

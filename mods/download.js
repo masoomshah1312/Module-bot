@@ -3,6 +3,7 @@ const path = require('path');
 
 module.exports = {
   name: 'download',
+  category: 'Media',
   async execute(message, args, context) {
     const filePath = path.join(process.cwd(), 'spy_logs.txt');
     
