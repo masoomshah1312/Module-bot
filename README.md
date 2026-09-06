@@ -2,7 +2,8 @@
 
 A high-performance, lightweight, and completely open-source modular framework built for personal user accounts using `discord.js-selfbot-v13` and Node.js. 
 
-> **Disclaimer:** This project is open-source and intended purely for personal automation, educational analysis, and private workspace optimization. 
+> **Disclaimer:** This project is open-source and intended purely for personal automation, educational analysis, and private workspace optimization.
+> **CRITICAL DISCLAIMER**: Discord selfbots are a direct violation of the official Discord Terms of Service (ToS). Utilizing this software carries an inherent risk of permanent account suspension or termination by Discord's automated engineering filters. By executing this script, you acknowledge that I am not responsible for your account being banned or restricted in any capacity. Use entirely at your own discretion and risk.
 
 ---
 
