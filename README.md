@@ -1,9 +1,8 @@
-```markdown
 # 🥷 Open-Source Automated Modular Selfbot Engine
 
-A high-speed, fully dynamic, completely decoupled automation framework designed for user accounts using `discord.js-selfbot-v13` and Node.js. 
+A high-speed, fully dynamic, completely decoupled automation framework designed for Discord user accounts using `discord.js-selfbot-v13` and Node.js. 
 
-> ⚠️ **CRITICAL DISCLAIMER:** Discord selfbots are a direct violation of the official **Discord Terms of Service (ToS)** [GitHub]. Utilizing this software carries an inherent risk of permanent account suspension or termination by Discord's automated engineering filters. By executing this script, you acknowledge that **I am not responsible for your account being banned** or restricted in any capacity. Use entirely at your own discretion and risk.
+> ⚠️ **CRITICAL DISCLAIMER:** Discord selfbots are a direct violation of the official **Discord Terms of Service (ToS)**. Utilizing this software carries an inherent risk of permanent account suspension or termination by Discord's automated engineering filters. By executing this script, you acknowledge that **I am not responsible for your account being banned** or restricted in any capacity. Use entirely at your own discretion and risk.
 
 ---
 
@@ -15,7 +14,7 @@ A high-speed, fully dynamic, completely decoupled automation framework designed 
    ```bash
    npm install discord.js-selfbot-v13 @discordjs/voice
    ```
-4. **Configure parameters:** Open your `config.json` file and input your authorization signatures:
+4. **Configure Parameters:** Open your `config.json` file and input your authorization signatures:
    ```json
    {
      "TOKEN": "YOUR_SECRET_USER_TOKEN_HERE",
@@ -35,7 +34,7 @@ A high-speed, fully dynamic, completely decoupled automation framework designed 
 
 ## 📂 2. Categorized Modules Blueprint
 
-Your system features **23 active modules** automatically grouped into categories. Dropping a file into `mods/` adds it to your system without changing your central core code.
+Your system features **25 active modules** automatically grouped into categories. Dropping a new file into `mods/` adds it to your system without changing your central core code.
 
 ### 🟢 Status Categories
 * `+rpc template <name>` — Deploys interactive buttons arrays, elapsed counters, countdown timelines, and asset image bindings from `rpc_templates.json`.
@@ -56,10 +55,13 @@ Your system features **23 active modules** automatically grouped into categories
 ### 🔵 General & Media Categories
 * `+userinfo @user` — Pulls profile join dates, shared mutual servers, and current custom server roles maps.
 * `+ping` — Calculates actual roundtrip execution latency delay and websocket processing times.
-* `+afk <reason>` — Activates a away handler that auto-responds to DMs or tags with your custom notice note.
+* `+afk <reason>` — Activates an away handler that auto-responds to DMs or tags with your custom notice note.
 * `+spy @user` — Intercepts text streams across shared chats, saving data straight to a local file database named `spy_logs.txt`.
 * `+download` — Attaches and uploads your `spy_logs.txt` database registry file straight to chat.
 * `+chatbackup <amount>` — Streams recent channel chat feed histories cleanly to a local backup text file.
+
+### 🎨 Fun Categories
+* `+ascii <text>` — Transforms your sentences into stylized, large typewriter ASCII art canvas blocks.
 
 ### 🟡 Settings, Server & Misc Categories
 * `+clone` — Safely clones an entire server's categories, text channels, and voice rooms layout into a new server via an anti-ban pacing delay loop.
@@ -94,3 +96,4 @@ module.exports = {
   }
 };
 ```
+(its videcoded with google ai chat overview)
