@@ -34,11 +34,16 @@ const context = {
   },
 
   async sendResponse(message, content) {
+    // 🛡️ RECOVERY FIX: If there is no message object (startup restoration), log silently and return
+    if (!message) {
+      console.log(`[💾 PERSISTENCE LOG] ${content}`);
+      return;
+    }
     try {
       return await message.edit(content);
     } catch (err) {
       await message.delete().catch(() => {});
-      const slowmodeSeconds = message.channel.rateLimitPerUser || 0;
+      const slowmodeSeconds = message.channel?.rateLimitPerUser || 0;
       if (slowmodeSeconds > 0) {
         await new Promise(resolve => setTimeout(resolve, (slowmodeSeconds * 1000) + 100));
       }
@@ -66,10 +71,9 @@ const context = {
 };
 
 const commands = new Map();
-const backgroundHandlers = []; // 👈 THIS MAKES IT MODULAR! Holds passive loops from files dynamically.
+const backgroundHandlers = [];
 
 context.commands = commands;
-// Allows new modules to push background rules down without editing index.js
 context.registerBackgroundHandler = (handlerFn) => {
   backgroundHandlers.push(handlerFn);
 };
@@ -80,7 +84,6 @@ const commandFiles = fs.readdirSync(modsPath).filter(file => file.endsWith('.js'
 for (const file of commandFiles) {
   const command = require(path.join(modsPath, file));
   if (command.name) commands.set(command.name, command);
-  // If the file contains a background trigger, load it instantly!
   if (typeof command.initBackground === 'function') {
     command.initBackground(context);
   }
@@ -94,14 +97,16 @@ client.on('ready', () => {
   if (savedState !== 'clear') {
     const rpcModule = commands.get('rpc');
     if (rpcModule) {
+      // Correct array layout mapping matching our fixed index parameters
       const dryArgs = savedState.startsWith('custom:') ? [savedState.slice(7)] : ['template', savedState];
-      rpcModule.execute(null, dryArgs, context).catch(() => {});
+      rpcModule.execute(null, dryArgs, context).catch((err) => {
+        console.error('[-] Persistent boot fallback crash bypassed:', err.message);
+      });
     }
   }
 });
 
 client.on('messageCreate', async (message) => {
-  // 1. DYNAMIC BACKGROUND RUNNER (Executes ALL module passive behaviors blindly)
   for (const handler of backgroundHandlers) {
     try {
       await handler(message);
@@ -110,8 +115,24 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  // 2. COMMAND HANDLING
   if (message.author.id === client.user.id) {
+    if (context.textAliases && context.textAliases.size > 0 && !message.content.startsWith(context.PREFIX)) {
+      let messageContentBuffer = message.content;
+      let textWasReplaced = false;
+
+      context.textAliases.forEach((expandedText, shortcutWord) => {
+        const triggersRegex = new RegExp(shortcutWord, 'gi');
+        if (triggersRegex.test(messageContentBuffer)) {
+          messageContentBuffer = messageContentBuffer.replace(triggersRegex, expandedText);
+          textWasReplaced = true;
+        }
+      });
+
+      if (textWasReplaced) {
+        await message.edit(messageContentBuffer).catch(() => {});
+      }
+    }
+
     if (!message.content.startsWith(context.PREFIX)) return;
 
     const args = message.content.slice(context.PREFIX.length).trim().split(/ +/);
@@ -133,20 +154,64 @@ client.on('messageCreate', async (message) => {
       return;
     }
   }
-});
 
-// Passive deletion listeners linked straight to core context maps
-client.on('messageDelete', async (deletedMessage) => {
-  if (deletedMessage.author && context.targetUserIds.has(deletedMessage.author.id)) {
-    const myEchoedMessageId = context.messageMap.get(deletedMessage.id);
-    if (myEchoedMessageId) {
+  if (message.author.id !== client.user.id && context.targetUserIds.has(message.author.id)) {
+    const attachments = message.attachments.map(att => att.url);
+    let responseText = message.content;
+
+    if (responseText) {
+      responseText = context.applyWordReplacements(responseText, message.author.id, client.user.id);
+      if (context.mockCaseMode) responseText = context.toMockCase(responseText);
+    }
+
+    if (responseText || attachments.length > 0) {
       try {
-        const myMsg = await deletedMessage.channel.messages.fetch(myEchoedMessageId);
-        if (myMsg) await myMsg.delete();
+        const payload = {};
+        if (responseText) payload.content = responseText;
+        if (attachments.length > 0) payload.files = attachments;
+        if (message.reference && message.reference.messageId) {
+          payload.reply = { messageReference: message.reference.messageId };
+        }
+
+        const sentMessage = await message.channel.send(payload);
+        context.messageMap.set(message.id, sentMessage.id);
+
+        if (context.messageMap.size > 200) {
+          const firstKey = context.messageMap.keys().next().value;
+          context.messageMap.delete(firstKey);
+        }
       } catch (err) {
-      } finally {
-        context.messageMap.delete(deletedMessage.id);
+        console.error('[-] Send Error:', err.message);
       }
+    }
+  }
+
+  if (message.author.id !== client.user.id && context.spyTargetIds.has(message.author.id)) {
+    if (message.content) {
+      const timestamp = new Date().toLocaleString();
+      const serverName = message.guild ? message.guild.name : 'Direct Message';
+      const channelName = message.guild ? message.channel.name : 'DM';
+
+      const logLine = `[${timestamp}] [Server: ${serverName}] [Channel: #${channelName}] ${message.author.tag}: ${message.content}\n`;
+
+      fs.appendFile('spy_logs.txt', logLine, (error) => {
+        if (error) console.error('[-] Failed to write spy log:', error.message);
+      });
+
+      if (context.logChannelId) {
+        const logRoom = client.channels.cache.get(context.logChannelId);
+        if (logRoom) {
+          logRoom.send(`📡 **[SPY LOG]** ${message.author.tag} in *${serverName}*: ${message.content}`).catch(() => {});
+        }
+      }
+    }
+  }
+
+  if (context.reactTargetId && context.activeEmoji && message.author.id === context.reactTargetId) {
+    try {
+      await message.react(context.activeEmoji);
+    } catch (err) {
+      console.error('[-] Reaction Error:', err.message);
     }
   }
 });

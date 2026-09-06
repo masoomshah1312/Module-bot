@@ -1,5 +1,5 @@
 {
-  "TOKEN": "YOUR_token",
+  "TOKEN": "youtoken",
   "DEFAULT_PREFIX": "*",
   "CLONE_DELAY_MS": 1500,
   "DEFAULT_MOCK_CASE": true,

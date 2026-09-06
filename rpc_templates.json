@@ -10,7 +10,8 @@
     "smallImageKey": "https://cdn.discordapp.com/icons/1513932791065219244/ebcb197f5c98ac7be91d7591e4945a4b.webp?size=2048",
     "smallText": ".GG/vortextiers",
     "url": "https://Discord.gg/Vortextiers",
-    "timestampType": "1000",
+    "timestampType": "ELAPSED",
+     "elapsedMinutes": 9879862, 
     "buttons": [
       { "label": "@vortextiers", "url": "https://Discord.gg/Vortextiers" },
       { "label": "View Stats", "url": "https://github.com" }

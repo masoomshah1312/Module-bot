@@ -7,7 +7,7 @@ module.exports = {
   category: 'Status',
   async execute(message, args, context) {
     if (!args || args.length === 0) {
-      if (message) await context.sendResponse(message, `❌ Format: ${context.PREFIX}rpc <text> or ${context.PREFIX}rpc template <name>`);
+      await context.sendResponse(message, `❌ Format: ${context.PREFIX}rpc <text> or ${context.PREFIX}rpc template <name>`);
       return;
     }
 
@@ -19,7 +19,7 @@ module.exports = {
       targetClient.user.setPresence({ activities: [] });
       context.lastLoadedTemplate = 'clear';
       context.saveActiveRpcState('clear');
-      if (message) await context.sendResponse(message, '✨ Rich Presence profile cleared successfully.');
+      await context.sendResponse(message, '✨ Rich Presence profile cleared successfully.');
       return;
     }
 
@@ -27,12 +27,12 @@ module.exports = {
       const templateName = args[1] ? args[1].toLowerCase() : null;
 
       if (!templateName) {
-        if (message) await context.sendResponse(message, `❌ Please provide a template name (e.g. ${context.PREFIX}rpc template gaming).`);
+        await context.sendResponse(message, `❌ Please provide a template name (e.g. ${context.PREFIX}rpc template gaming).`);
         return;
       }
 
       if (!fs.existsSync(configPath)) {
-        if (message) await context.sendResponse(message, '❌ Configuration file rpc_templates.json is missing.');
+        await context.sendResponse(message, '❌ Configuration file rpc_templates.json is missing.');
         return;
       }
 
@@ -40,7 +40,7 @@ module.exports = {
       const activeTemplate = templates[templateName];
 
       if (!activeTemplate) {
-        if (message) await context.sendResponse(message, `❌ Template profile ${templateName} does not exist inside your config file.`);
+        await context.sendResponse(message, `❌ Template profile ${templateName} does not exist inside your config file.`);
         return;
       }
 
@@ -51,7 +51,12 @@ module.exports = {
           .setName(activeTemplate.name || 'Custom Application');
 
         if (activeTemplate.timestampType === 'ELAPSED') {
-          rpc.setStartTimestamp(Date.now());
+          if (activeTemplate.elapsedMinutes && !isNaN(activeTemplate.elapsedMinutes)) {
+            const customStartOffset = Date.now() - (activeTemplate.elapsedMinutes * 60 * 1000);
+            rpc.setStartTimestamp(customStartOffset);
+          } else {
+            rpc.setStartTimestamp(Date.now());
+          }
         } else if (activeTemplate.timestampType === 'COUNTDOWN' && activeTemplate.countdownMinutes) {
           rpc.setEndTimestamp(Date.now() + (activeTemplate.countdownMinutes * 60 * 1000));
         }
@@ -81,10 +86,10 @@ module.exports = {
         
         context.lastLoadedTemplate = templateName;
         context.saveActiveRpcState(templateName);
-        if (message) await context.sendResponse(message, `🎮 Layout template **${templateName}** loaded completely from config!`);
+        await context.sendResponse(message, `🎮 Layout template **${templateName}** loaded completely from config!`);
       } catch (err) {
         console.error('[-] RPC Build Failure:', err.message);
-        if (message) await context.sendResponse(message, `❌ Error compiling RPC template details: ${err.message}`);
+        await context.sendResponse(message, `❌ Error compiling RPC template details: ${err.message}`);
       }
       return;
     }
@@ -101,6 +106,6 @@ module.exports = {
     
     context.lastLoadedTemplate = `custom:${customText}`;
     context.saveActiveRpcState(`custom:${customText}`);
-    if (message) await context.sendResponse(message, `✅ Rich Presence custom status updated directly to: "${customText}"`);
+    await context.sendResponse(message, `✅ Rich Presence custom status updated directly to: "${customText}"`);
   }
 };
