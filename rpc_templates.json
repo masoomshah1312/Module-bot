@@ -1,0 +1,59 @@
+{
+  "gaming": {
+    "applicationId": "1522275745450168462",
+    "type": "PLAYING",
+    "name": "idk",
+    "details": "idk",
+    "state": ".gg/",
+    "largeImageKey": "",
+    "largeText": "",
+    "smallImageKey": "",
+    "smallText": ".GG",
+    "url": "https://Discord.gg",
+    "timestampType": "1000",
+    "buttons": [
+      { "label": "@vortextiers", "url": "https://Discord.gg" },
+      { "label": "View Stats", "url": "https://github.com" }
+    ]
+  },
+  "streaming": {
+    "applicationId": "367827983903490050",
+    "type": "STREAMING",
+    "name": "Live Stream",
+    "details": "Developing Node.js tools",
+    "state": "Chilling with chat",
+    "largeImageKey": "twitch_banner",
+    "largeText": "1080p 60FPS",
+    "smallImageKey": "",
+    "smallText": "",
+    "url": "https://Discord.gg",
+    "timestampType": "ELAPSED",
+    "buttons": [
+      { "label": "Join Lobby", "url": "https://discord.gg" },
+      { "label": "View Stats", "url": "https://github.com" }
+    ]
+  },
+  "anime": {
+    "applicationId": "1111111111111111111",
+    "type": "WATCHING",
+    "name": "Demon Slayer",
+    "details": "Season 4 Arc",
+    "state": "Episode 12 (Sub)",
+    "largeImageKey": "anime_cover",
+    "largeText": "Binge Watching",
+    "smallImageKey": "",
+    "smallText": "",
+    "url": "https://Discord.gg",
+    "timestampType": "ELAPSED",
+    "buttons": [
+      { "label": "Join Lobby", "url": "https://discord.gg" },
+      { "label": "View Stats", "url": "https://github.com" }
+    ]
+  },
+  "status_rotation": [
+    "Kya milega tujhe is awargi se?",
+    "Kuch baatein an-kahi, kuch baatein an-suni",
+    "Kya ye ibtida-e-ishq hai ya sirf awaragi?",
+    "Teri tareef mein ab kya hi main likhoon?"
+  ]
+}
