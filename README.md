@@ -50,7 +50,6 @@ Your system features **25 active modules** automatically grouped into categories
 * `+react @user <emoji>` — Targets a user with a customizable emoji reaction hook.
 * `+spam <amount> <text>` — Runs a rapid message duplication loop block.
 * `+flood` — Clears your local display screen by sending heavy whitespace blank lines.
-* `+vcghost <channel_id>` — Rapidly joins and leaves a voice channel room to spark user notification sound alerts.
 
 ### 🔵 General & Media Categories
 * `+userinfo @user` — Pulls profile join dates, shared mutual servers, and current custom server roles maps.
